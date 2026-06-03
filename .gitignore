@@ -1,0 +1,61 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyi
+.Python
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# Logs
+logs/
+*.log
+
+# Environment variables
+.env
+
+# Local projects and data
+projects/
+logs/
+.gemini/
+
+# Docker
+docker-compose.override.yml
+.Dockerfile
+*.log
+**/tmp/**
+**/docker-compose.*.yml
+
+# IDE/editor
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build / distribution
+*.egg-info/
+*.eggs/
+build/
+dist/
+*.egg
+
+# Python packaging
+pip-wheel-metadata/
+*.whl
+
+# Generated files
+*.pyc
+*.pyo
+*.pyd
+```

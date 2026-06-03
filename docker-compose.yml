@@ -1,0 +1,154 @@
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: codehelper-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_NAME=codehelper
+      - POSTGRES_USER=codehelper
+      - POSTGRES_PASSWORD=codehelper123
+      - PGDATA=/var/lib/postgresql/data/pgdata
+      - POSTGRES_PORT=5432
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./src/database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - ./src/database/postgres.conf:/etc/postgresql/postgresql.conf:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-codehelper} -d ${POSTGRES_NAME:-codehelper}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - codehelper-net
+
+  reprocessor:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    container_name: codehelper-reprocessor
+    restart: "no"
+    environment:
+      - DB_NAME=codehelper
+      - DB_USER=codehelper
+      - DB_PASSWORD=codehelper123
+      - DB_HOST=postgres
+      - PGDATA=/var/lib/postgresql/data/pgdata
+      - DB_PORT=5432
+    volumes:
+      - ${REPO_PATH:-./projects}:/repo:ro
+      - ./logs:/app/logs
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - codehelper-net
+    command: ["python", "/app/reprocess.py", "--repo-path", "/repo/dockerswarm-vagrant-local", "--project-name", "dockerswarm-vagrant-local"]
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: codehelper-prometheus
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    ports:
+      - "9090:9090"
+    networks:
+      - codehelper-net
+
+  loki:
+    image: grafana/loki:latest
+    container_name: codehelper-loki
+    volumes:
+      - ./monitoring/loki-config.yml:/etc/loki/local-config.yaml
+      - loki_data:/tmp/loki
+    command: -config.file=/etc/loki/local-config.yaml
+    ports:
+      - "3100:3100"
+    networks:
+      - codehelper-net
+
+  mcp-server:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    container_name: codehelper-mcp-server
+    tty: true
+    stdin_open: true
+    environment:
+      - DB_NAME=codehelper
+      - DB_USER=codehelper
+      - DB_PASSWORD=codehelper123
+      - DB_HOST=postgres
+      - DB_PORT=5432
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - codehelper-net
+    command: ["python", "/app/mcp_server.py"]
+
+  mcp-filesystem:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    container_name: codehelper-mcp-filesystem
+    tty: true
+    stdin_open: true
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./logs:/app/logs
+      - ${REPO_PATH:-./projects}:/repo:ro
+    networks:
+      - codehelper-net
+    command: ["python", "/app/mcp_server_filesystem.py"]
+
+  promtail:
+    image: grafana/promtail:latest
+    container_name: codehelper-promtail
+    volumes:
+      - ./logs:/app/logs
+      - ./monitoring/promtail-config.yml:/etc/promtail/config.yml
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      - codehelper-net
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: codehelper-grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+      - grafana_data:/var/lib/grafana
+    networks:
+      - codehelper-net
+    depends_on:
+      - prometheus
+      - loki
+
+volumes:
+  pgdata:
+    driver: local
+  pgadmin_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+  loki_data:
+    driver: local
+
+networks:
+  codehelper-net:
+    driver: bridge

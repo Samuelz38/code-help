@@ -1,0 +1,18 @@
+{
+    "model_embeddings": {
+        "provider": "huggingface",
+        "model": "sentence-transformers/all-MiniLM-L6-v2",
+        "api_key": "",
+        "base_url": null,
+        "batch_size": 100,
+        "dimensions": 1536
+    },
+
+    "chunking": {
+        "chunk_size": 1000,
+        "overlap": 100,
+        "strategy": "semantic",
+        "language_specific": true,
+        "max_chunk_size": 2048
+    }
+}
