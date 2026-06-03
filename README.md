@@ -24,12 +24,23 @@ Este projeto reúne um conjunto de ferramentas para análise de código, reproce
 
 ## Como usar
 
-1. Configure o arquivo `.env` com as variáveis de ambiente necessárias.
+1. Copie `.env.example` para `.env` e ajuste os valores conforme seu ambiente.
 2. Execute `docker compose up -d --build` para subir todos os serviços.
 3. Acesse Grafana em `http://localhost:3000`, Prometheus em `http://localhost:9090` e Loki em `http://localhost:3100`.
 
+## Executando os MCP servers localmente
+
+Para uso com clientes externos como Claude Desktop ou Cursor, execute os servidores MCP fora do Docker:
+
+```bash
+python mcp_server.py
+python mcp_server_filesystem.py
+```
+
+Isso garante que o MCP server esteja disponível no processo local em vez de apenas no container.
+
 ## Observações
 
-- Os MCP servers são iniciados automaticamente via Docker Compose.
+- Os MCP servers são iniciados automaticamente via Docker Compose, mas também podem ser executados localmente para uso com clientes externos.
 - O serviço `reprocessor` atua sobre um diretório de repositório Git montado no container e processa apenas aquele caminho.
 - A configuração do Grafana já inclui datasources para Prometheus e Loki.

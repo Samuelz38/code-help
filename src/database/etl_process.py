@@ -10,6 +10,8 @@ from src.utils.json_functions import covert_json_to_dict
 from src.utils.verify_functions import verify_is_model_not_exist, verify_is_provider_not_exist
 
 class EmbeddingsETLProcess:
+    _embedding_model = None
+
     def __init__(self, path: str):
         self.path = path
 
@@ -29,6 +31,11 @@ class EmbeddingsETLProcess:
         return cpp_splitter.split_documents(docs)
 
     def generate_embedding(self):
+        if EmbeddingsETLProcess._embedding_model is None:
+            EmbeddingsETLProcess._embedding_model = self._create_embedding()
+        return EmbeddingsETLProcess._embedding_model
+
+    def _create_embedding(self):
         dict_configs = covert_json_to_dict('configs.json')
         model_config = dict_configs.get('model_embeddings', {})
 

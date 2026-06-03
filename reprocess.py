@@ -164,7 +164,8 @@ class Reprocessor:
             return log_id
 
         except Exception as e:
-            return "Erro ao criar log ETL: {e}"
+            logger.error(f"Erro ao criar log ETL: {e}")
+            raise
 
     def _update_etl_log(self, log_id: int, **kwargs):
         """Atualiza registro de log com resultados."""
@@ -191,7 +192,8 @@ class Reprocessor:
             conn.close()
 
         except Exception as e:
-            return f'Erro ao atualizar log ETL: {e}'
+            logger.error(f"Erro ao atualizar log ETL: {e}")
+            raise
 
     def _delete_old_chunks(self, file_paths: List[str]) -> int:
         """Remove chunks antigos dos arquivos modificados."""
@@ -218,7 +220,8 @@ class Reprocessor:
             return deleted
 
         except Exception as e:
-            return f"Erro ao deletar chunks antigos: {e}"
+            logger.error(f"Erro ao deletar chunks antigos: {e}")
+            raise
 
     def _insert_chunks(self, chunks: List[Dict]) -> int:
         """Insere novos chunks com embeddings no banco (batch insert)."""
@@ -230,7 +233,7 @@ class Reprocessor:
             vector_model = embeddings.generate_embedding()
 
             if isinstance(vector_model, str):
-                return f'Falha ao carregar modelo: {vector_model}'
+                raise RuntimeError(f"Falha ao carregar modelo: {vector_model}")
 
             conn = self._get_db_connection()
             cursor = conn.cursor()
@@ -262,7 +265,8 @@ class Reprocessor:
             return inserted
 
         except Exception as e:
-            return 'Erro ao inserir chunks: {e}'
+            logger.error(f"Erro ao inserir chunks: {e}")
+            raise
 
     def _process_files(self, file_paths: List[str]) -> Tuple[int, int]:
         """
@@ -306,7 +310,8 @@ class Reprocessor:
                     })
 
             except Exception as e:
-                return f'Erro ao processar {rel_path}: {e}'
+                logger.error(f"Erro ao processar {rel_path}: {e}")
+                raise
 
         # Insere no banco
         inserted = self._insert_chunks(all_chunks)
@@ -331,7 +336,8 @@ class Reprocessor:
             conn.close()
 
         except Exception as e:
-            return f'Erro ao registrar versão: {e}'
+            logger.error(f"Erro ao registrar versão: {e}")
+            raise
 
     def run(self):
         """Executa o pipeline completo de reprocessamento."""

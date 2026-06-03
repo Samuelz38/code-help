@@ -1,9 +1,12 @@
+import logging
 import os
 
 from src.database.connection import ConectToDataBase
 from src.database.etl_process import EmbeddingsETLProcess
 
 from src.utils.system_operations_functions import get_path_root
+
+logger = logging.getLogger("search-db")
 
 class SearchDB:
     def __init__(self, query: str, project_name: str = None, limit: int = 5):
@@ -13,9 +16,9 @@ class SearchDB:
         self.DB_HOST = os.getenv('DB_HOST')
         self.DB_NAME = os.getenv('DB_NAME')
         self.DB_USER = os.getenv('DB_USER')
-        self.DB_PASSW = os.getenv('DB_PASSW')
+        self.DB_PASSWORD = os.getenv('DB_PASSWORD', os.getenv('DB_PASSW'))
         self.path_root = get_path_root()
-        db = ConectToDataBase(self.DB_HOST, self.DB_PASSW, self.DB_NAME, self.DB_USER)
+        db = ConectToDataBase(self.DB_HOST, self.DB_PASSWORD, self.DB_NAME, self.DB_USER)
         self.conn = db.create_connection()
 
     def _execute(self):
@@ -61,11 +64,14 @@ class SearchDB:
                         + '-' * 60
                     )
 
-            self.conn.close()
             return '\n'.join(results_txt) if results_txt else 'Nenhum resultado encontrado.'
 
         except Exception as e:
-            return f"Erro na busca vetorial: {str(e)}"
+            logger.error(f"Erro na busca vetorial: {e}", exc_info=True)
+            raise
+        finally:
+            if self.conn:
+                self.conn.close()
 
 
     def get_project_stats(self):
@@ -85,8 +91,6 @@ class SearchDB:
 
                 total, last_commit, last_update = cur.fetchone()
 
-            self.conn.close()
-
             return (
                 f"📊 Estatísticas do projeto: {self.project_name}\n"
                 f"   Total de chunks: {total}\n"
@@ -95,4 +99,8 @@ class SearchDB:
             )
 
         except Exception as e:
-            return f"Erro: {str(e)}"
+            logger.error(f"Erro ao obter estatísticas do projeto: {e}", exc_info=True)
+            raise
+        finally:
+            if self.conn:
+                self.conn.close()
