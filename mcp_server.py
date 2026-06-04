@@ -8,6 +8,11 @@ from fastmcp import FastMCP
 
 from src.tools.search_db import SearchDB
 from src.tools.get_projects import ProjectInfoTool
+from src.tools.index_project import IndexProjectTool
+
+from src.prompts import (system_orientacao, guia_indexacao, 
+                         guia_busca_semantica, troubleshooting, 
+                         exemplos_conversas)
 
 load_dotenv()
 
@@ -53,6 +58,55 @@ def get_project_stats(project_name: str):
     project_info = ProjectInfoTool(project_name, '')
     return project_info.get_project_stats()
 
+
+@mcp.tool()
+def index_project(repo_path: str, project_name: str):
+    """
+    Indexa (ingere) um projeto de código no banco vetorial.
+    Use ANTES de fazer buscas com search_db.
+    
+    Args:
+        repo_path: Caminho local do repositório (ex: ./projects/opencv)
+        project_name: Nome do projeto para identificar no banco
+    """
+    logger.info(f"Executando index_project: repo='{repo_path}', project='{project_name}'")
+    tool = IndexProjectTool(repo_path, project_name)
+    return tool.run()
+
+@mcp.prompt()
+def orientacao() -> str:
+    """
+    Fornece uma orientação geral sobre o funcionamento do MCP e suas ferramentas.
+    Use esta função para entender como interagir com o sistema.
+    """
+    return system_orientacao()
+
+@mcp.prompt()
+def guia_indexacao() -> str:
+    """Fornece um guia passo a passo para indexar um projeto de código usando 
+       a ferramenta index_project.
+    """
+    return guia_indexacao()
+
+@mcp.prompt()
+def guia_busca_semantica() -> str:
+    """Fornece um guia passo a passo para realizar buscas semânticas 
+    em projetos indexados.
+    """
+    return guia_busca_semantica()
+
+@mcp.prompt()
+def troubleshooting() -> str:
+    """Fornece dicas e soluções para problemas comuns que 
+    podem ocorrer ao usar o MCP.
+    """
+    return troubleshooting()
+
+@mcp.prompt()
+def exemplos_conversas() -> str:
+    """Fornece exemplos de conversas com o MCP para ilustrar seu uso.
+    """
+    return exemplos_conversas()
 
 def main():
     try:
