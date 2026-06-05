@@ -4,7 +4,7 @@
 # Aciona o pipeline de reprocessamento após cada commit local
 # =========================================================
 
-set -e
+set -euo pipefail
 
 REPO_PATH=$(git rev-parse --show-toplevel)
 PROJECT_NAME=$(basename "$REPO_PATH")
@@ -19,35 +19,34 @@ fi
 
 rm -f "$MARKER_FILE"
 
-# Resolve caminho do reprocessador (assume estrutura padrão do projeto)
-REPROCESS_SCRIPT="${REPO_PATH}/../../reprocess.py"
-VENV_PATH="${REPO_PATH}/../../env/bin/activate"
-LOG_FILE="${REPO_PATH}/../../logs/reprocess_$(date +%Y%m%d_%H%M%S).txt"
+echo "[CodeHelper] 🔄 Reprocessando embeddings após commit ${COMMIT_HASH:0:8}..."
+echo "[CodeHelper]    Projeto: $PROJECT_NAME"
+echo "[CodeHelper]    Mensagem: $COMMIT_MSG"
+echo "[CodeHelper]    Início: $(date '+%Y-%m-%d %H:%M:%S')"
 
-# Cria diretório de logs
-mkdir -p "$(dirname "$LOG_FILE")"
-
-if [ -f "$VENV_PATH" ]; then
-    source "$VENV_PATH"
+if ! command -v docker >/dev/null 2>&1; then
+    echo "[CodeHelper] ⚠️  Docker não encontrado no host. Não será possível executar o reprocessamento no container Docker."
+    exit 0
 fi
 
-if [ -f "$REPROCESS_SCRIPT" ]; then
-    echo "[CodeHelper] 🔄 Reprocessando embeddings após commit ${COMMIT_HASH:0:8}..."
-    echo "[CodeHelper]    Projeto: $PROJECT_NAME"
-    echo "[CodeHelper]    Mensagem: $COMMIT_MSG"
-    echo "[CodeHelper]    Início: $(date '+%Y-%m-%d %H:%M:%S')"
+cd "$REPO_PATH"
 
-    python3 "$REPROCESS_SCRIPT" \
-        --repo-path "$REPO_PATH" \
-        --project-name "$PROJECT_NAME" \
-        --commit-hash "$COMMIT_HASH" \
-        --commit-msg "$COMMIT_MSG" \
-        >> "$LOG_FILE" 2>&1 && \
-        echo "[CodeHelper] ✅ Embeddings atualizados com sucesso!" || \
-        echo "[CodeHelper] ❌ Falha no reprocessamento. Verifique: $LOG_FILE"
+DOCKER_ARGS=(python /app/reprocess.py --repo-path "/repo" --project-name "$PROJECT_NAME" --commit-hash "$COMMIT_HASH" --commit-msg "$COMMIT_MSG")
+
+if docker compose ps -q reprocessor >/dev/null 2>&1 && [ -n "$(docker compose ps -q reprocessor)" ]; then
+    echo "[CodeHelper] ▶️ Usando container em execução: reprocessor"
+    docker compose exec reprocessor "${DOCKER_ARGS[@]}"
 else
-    echo "[CodeHelper] ⚠️  Script de reprocessamento não encontrado: $REPROCESS_SCRIPT"
-    echo "[CodeHelper]    Instale o reprocessador em ../../reprocess.py"
+    echo "[CodeHelper] ▶️ Container reprocessor não está em execução. Iniciando com docker compose run --rm..."
+    docker compose run --rm reprocessor "${DOCKER_ARGS[@]}"
 fi
 
-exit 0
+EXIT_CODE=$?
+
+if [ "$EXIT_CODE" -eq 0 ]; then
+    echo "[CodeHelper] ✅ Embeddings atualizados com sucesso!"
+else
+    echo "[CodeHelper] ❌ Falha no reprocessamento dentro do container. Código de saída: $EXIT_CODE"
+fi
+
+exit "$EXIT_CODE"
