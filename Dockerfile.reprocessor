@@ -1,0 +1,30 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y \
+    git \
+    libpq-dev \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.docker.txt /app/requirements.docker.txt
+RUN pip install --no-cache-dir -r /app/requirements.docker.txt
+
+COPY src /app/src
+COPY .env /app/.env
+COPY ./reprocess.py /app/reprocess.py
+COPY ./mcp_server.py /app/mcp_server.py
+COPY ./mcp_server_filesystem.py /app/mcp_server_filesystem.py
+COPY ./configs.json /app/configs.json
+COPY ./docker-entrypoint.sh /app/docker-entrypoint.sh
+COPY ./git-hooks /app/git-hooks
+
+RUN chmod +x /app/docker-entrypoint.sh && chmod -R +x /app/git-hooks
+RUN mkdir -p /app/logs
+
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONPATH=/app
+
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
+CMD ["python", "/app/reprocess.py"]

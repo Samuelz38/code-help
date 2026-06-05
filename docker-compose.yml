@@ -28,7 +28,7 @@ services:
   reprocessor:
     build:
       context: .
-      dockerfile: ./Dockerfile
+      dockerfile: ./Dockerfile.reprocessor
     container_name: codehelper-reprocessor
     restart: "no"
     environment:
@@ -38,15 +38,18 @@ services:
       - DB_HOST=postgres
       - PGDATA=/var/lib/postgresql/data/pgdata
       - DB_PORT=5432
+      - REPO_PATH=/repo
+      - PROJECT_NAME=${PROJECT_NAME:-dockerswarm-vagrant-local}
     volumes:
-      - ${REPO_PATH:-./projects}:/repo:ro
+      - ${REPO_PATH:-./projects}:/repo:rw
+      - ./git-hooks:/app/git-hooks:ro
       - ./logs:/app/logs
     depends_on:
       postgres:
         condition: service_healthy
     networks:
       - codehelper-net
-    command: ["python", "/app/reprocess.py", "--repo-path", "/repo/dockerswarm-vagrant-local", "--project-name", "dockerswarm-vagrant-local"]
+    command: ["python", "/app/reprocess.py", "--repo-path", "/repo", "--project-name", "${PROJECT_NAME:-dockerswarm-vagrant-local}"]
 
   prometheus:
     image: prom/prometheus:latest
