@@ -9,8 +9,7 @@ Este projeto reúne um conjunto de ferramentas para análise de código, reproce
 - Disponibiliza dois servidores MCP:
   - `codehelper-server`: ferramenta de busca semântica em código via `search_db` e `get_project_stats`.
   - `codehelper-filesystem`: ferramentas de exploração de projetos e arquivos via `list_directory`, `read_file`, `search_files`, `get_file_info`, `get_project_structure` e `clone_repository`.
-- Orquestra serviços de monitoramento com Prometheus, Loki, Promtail e Grafana.
-
+- Orquestra serviços de monitoramento com Prometheus, Loki, Promtail e Grafana.- Armazena métricas em JSONL em `./metrics` e replica métricas de aplicação em `./logs/metrics.log` para ingestão do Loki.
 ## Principais arquivos
 
 - `docker-compose.yml`: define os serviços do projeto, incluindo `postgres`, `reprocessor`, `prometheus`, `loki`, `promtail`, `grafana`, `mcp-server` e `mcp-filesystem`.

@@ -1,4 +1,3 @@
-
 services:
   postgres:
     image: pgvector/pgvector:pg16
@@ -36,7 +35,6 @@ services:
       - DB_USER=codehelper
       - DB_PASSWORD=codehelper123
       - DB_HOST=postgres
-      - PGDATA=/var/lib/postgresql/data/pgdata
       - DB_PORT=5432
       - REPO_PATH=/repo
       - PROJECT_NAME=${PROJECT_NAME:-dockerswarm-vagrant-local}
@@ -77,45 +75,6 @@ services:
     networks:
       - codehelper-net
 
-  mcp-server:
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-    container_name: codehelper-mcp-server
-    tty: true
-    stdin_open: true
-    environment:
-      - DB_NAME=codehelper
-      - DB_USER=codehelper
-      - DB_PASSWORD=codehelper123
-      - DB_HOST=postgres
-      - DB_PORT=5432
-    depends_on:
-      postgres:
-        condition: service_healthy
-    volumes:
-      - ./logs:/app/logs
-    networks:
-      - codehelper-net
-    command: ["python", "/app/mcp_server.py"]
-
-  mcp-filesystem:
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-    container_name: codehelper-mcp-filesystem
-    tty: true
-    stdin_open: true
-    depends_on:
-      postgres:
-        condition: service_healthy
-    volumes:
-      - ./logs:/app/logs
-      - ${REPO_PATH:-./projects}:/repo:ro
-    networks:
-      - codehelper-net
-    command: ["python", "/app/mcp_server_filesystem.py"]
-
   promtail:
     image: grafana/promtail:latest
     container_name: codehelper-promtail
@@ -142,8 +101,6 @@ services:
 
 volumes:
   pgdata:
-    driver: local
-  pgadmin_data:
     driver: local
   prometheus_data:
     driver: local

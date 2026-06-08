@@ -65,6 +65,13 @@ Input:focus {
     border: tall #58A6FF;
 }
 
+.input-label {
+    color: #8B949E;
+    padding-left: 1;
+    margin-top: 1;
+    margin-bottom: 0;
+}
+
 .button_save {
     width: 100%;
     background: #238636;

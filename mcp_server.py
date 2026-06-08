@@ -1,122 +1,118 @@
 import os
-import logging
 import sys
 from pathlib import Path
 
-from dotenv import load_dotenv
-from fastmcp import FastMCP
+from mcp.server.fastmcp import FastMCP
+
+project_root = Path(__file__).parent.resolve()
+sys.path.insert(0, str(project_root))
 
 from src.tools.search_db import SearchDB
-from src.tools.get_projects import ProjectInfoTool
+from src.tools.get_projects import ProjectInfoTool 
 from src.tools.index_project import IndexProjectTool
+from src.tools.clone_repository import CloneRepositoryTool
 
-from src.prompts import (system_orientacao, guia_indexacao, 
-                         guia_busca_semantica, troubleshooting, 
-                         exemplos_conversas)
+# ============================================================
+# IMPORT DO COLETOR DE MÉTRICAS (para métricas de nível MCP)
+# ============================================================
+from metrics_collector import MetricsCollector
 
-load_dotenv()
+# ============================================================
+# SERVIDOR MCP COM MÉTRICAS
+# ============================================================
 
-# Configuração de Logging
-project_root = Path(__file__).parent.resolve()
-log_dir = project_root / "logs"
-log_dir.mkdir(exist_ok=True)
-log_file = log_dir / "mcp_server.log"
+mcp = FastMCP("codehelp")
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s [%(levelname)s] %(name)s: %(message)s',
-    handlers=[
-        logging.FileHandler(log_file),
-        logging.StreamHandler(sys.stdout)
-    ]
-)
-logger = logging.getLogger("mcp-server")
-
-
-mcp = FastMCP('codehelper-server')
+# Inicializa coletor de métricas para o servidor MCP
+metrics = MetricsCollector(output_dir="./metrics")
 
 
 @mcp.tool()
-def search_db(query: str, project_name: str = None, limit: int = 5):
+def search_db(query: str, project_name: str = None, limit: int = 5) -> str:
     """
-    Busca lógica e funcionalidades dentro de bases de código indexadas.
-    Use esta ferramenta para encontrar implementações de algoritmos ou localizar funções.
+    Busca semântica no banco de dados vetorial.
+    Coleta automaticamente: latência (L_query), buffer hit ratio (HR_buf), SSR.
     """
-    logger.info(f"Executando search_db: query='{query}', project='{project_name}'")
-    search_tool = SearchDB(query, project_name, limit)
-    return search_tool._execute()
+    # Registra chamada da tool
+    metrics.record("mcp_call", 1, "count", {
+        "tool": "search_db",
+        "project_name": project_name,
+        "query_preview": query[:50]
+    })
 
-
-
-@mcp.tool()
-def get_project_stats(project_name: str):
-    
-    """
-    Retorna estatísticas de um projeto indexado (total de chunks, último commit, etc).
-    """
-    logger.info(f"Executando get_project_stats: project='{project_name}'")
-    project_info = ProjectInfoTool(project_name, '')
-    return project_info.get_project_stats()
+    search = SearchDB(query, project_name, limit)
+    return search._execute()
 
 
 @mcp.tool()
-def index_project(repo_path: str, project_name: str):
+def get_project_stats(project_name: str, path:str) -> str:
     """
-    Indexa (ingere) um projeto de código no banco vetorial.
-    Use ANTES de fazer buscas com search_db.
-    
-    Args:
-        repo_path: Caminho local do repositório (ex: ./projects/opencv)
-        project_name: Nome do projeto para identificar no banco
+    Retorna estatísticas do projeto com métricas de performance.
     """
-    logger.info(f"Executando index_project: repo='{repo_path}', project='{project_name}'")
-    tool = IndexProjectTool(repo_path, project_name)
-    return tool.run()
+    metrics.record("mcp_call", 1, "count", {
+        "tool": "get_project_stats",
+        "project_name": project_name,
+        "path": path
+    })
+
+    stats = ProjectInfoTool(project_name, path)
+    return stats.get_project_stats()
+
+
+@mcp.tool()
+def index_project(project_name: str, repo_path: str) -> str:
+    """
+    Indexa um projeto no banco de dados.
+    """
+    metrics.record("mcp_call", 1, "count", {
+        "tool": "index_project",
+        "project_name": project_name
+    })
+
+    indexer = IndexProjectTool(repo_path, project_name)
+    return indexer._execute()
+
+
+@mcp.tool()
+def clone_repo(repo_url: str, project_name: str) -> str:
+    """
+    Clona um repositório do GitHub.
+    """
+    metrics.record("mcp_call", 1, "count", {
+        "tool": "clone_repo",
+        "project_name": project_name,
+        "repo_url": repo_url
+    })
+
+    cloner = CloneRepositoryTool(repo_url, project_name)
+    return cloner.clone_repository()
+
 
 @mcp.prompt()
-def orientacao() -> str:
+def onboarding_assistant(query: str) -> str:
     """
-    Fornece uma orientação geral sobre o funcionamento do MCP e suas ferramentas.
-    Use esta função para entender como interagir com o sistema.
+    Prompt especializado para onboarding de desenvolvedores.
+    Coleta métrica de uso do prompt.
     """
-    return system_orientacao()
+    metrics.record("mcp_prompt", 1, "count", {
+        "prompt": "onboarding_assistant",
+        "query_preview": query[:50]
+    })
 
-@mcp.prompt()
-def guia_indexacao() -> str:
-    """Fornece um guia passo a passo para indexar um projeto de código usando 
-       a ferramenta index_project.
-    """
-    return guia_indexacao()
+    return f"""
+Você é um assistente técnico especializado em onboarding de desenvolvedores
+para projetos de código aberto complexos. Use o contexto do banco de dados
+vetorial para responder de forma precisa e educativa.
 
-@mcp.prompt()
-def guia_busca_semantica() -> str:
-    """Fornece um guia passo a passo para realizar buscas semânticas 
-    em projetos indexados.
-    """
-    return guia_busca_semantica()
+Pergunta do desenvolvedor: {query}
 
-@mcp.prompt()
-def troubleshooting() -> str:
-    """Fornece dicas e soluções para problemas comuns que 
-    podem ocorrer ao usar o MCP.
-    """
-    return troubleshooting()
-
-@mcp.prompt()
-def exemplos_conversas() -> str:
-    """Fornece exemplos de conversas com o MCP para ilustrar seu uso.
-    """
-    return exemplos_conversas()
-
-def main():
-    try:
-        logger.info("Iniciando MCP server...")
-        mcp.run()
-    except KeyboardInterrupt:
-        logger.info("MCP server interrompido pelo usuário.")
-    except Exception as exc:
-        logger.error(f"Erro no servidor MCP: {exc}", exc_info=True)
+Diretrizes:
+1. Explique conceitos, não apenas forneça código
+2. Relacione com a estrutura real do repositório (arquivos, funções)
+3. Sugira próximos passos de aprendizado
+4. Evite o padrão de "Delegação de IA" — incentive o raciocínio independente
+"""
 
 
 if __name__ == "__main__":
-    main()
+    mcp.run()
