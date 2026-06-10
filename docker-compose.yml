@@ -37,9 +37,9 @@ services:
       - DB_HOST=postgres
       - DB_PORT=5432
       - REPO_PATH=/repo
-      - PROJECT_NAME=${PROJECT_NAME:-dockerswarm-vagrant-local}
+      - PROJECT_NAME=${PROJECT_NAME:-opencv}
     volumes:
-      - ${REPO_PATH:-./projects}:/repo:rw
+      - ${REPO_PATH:-./projects/opencv}:/repo:rw
       - ./git-hooks:/app/git-hooks:ro
       - ./logs:/app/logs
     depends_on:
@@ -47,7 +47,7 @@ services:
         condition: service_healthy
     networks:
       - codehelper-net
-    command: ["python", "/app/reprocess.py", "--repo-path", "/repo", "--project-name", "${PROJECT_NAME:-dockerswarm-vagrant-local}"]
+    command: ["python", "/app/reprocess.py", "--repo-path", "/repo", "--project-name", "${PROJECT_NAME:-opencv}"]
 
   prometheus:
     image: prom/prometheus:latest

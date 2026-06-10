@@ -1,0 +1,32 @@
+{
+  "query": "Desempenho do carregamento de bibliotecas em tempo de execução e da inicialização tardia em módulos OpenCV",
+  "keywords": [
+    "init",
+    "load",
+    "lazy",
+    "startup",
+    "runtime",
+    "module"
+  ],
+  "method": "baseline_grep",
+  "grep_time_sec": 6.551,
+  "inspection_time_sec": 0.308,
+  "total_time_sec": 6.86,
+  "files_matched": 2774,
+  "lines_inspected": 1645138,
+  "total_lines": 2036570,
+  "ssr": 0.192202,
+  "found_relevant": true,
+  "file_list": [
+    "3rdparty\\cpufeatures\\cpu-features.c",
+    "3rdparty\\dlpack\\include\\dlpack\\dlpack.h",
+    "3rdparty\\flatbuffers\\include\\flatbuffers\\base.h",
+    "3rdparty\\flatbuffers\\include\\flatbuffers\\buffer.h",
+    "3rdparty\\flatbuffers\\include\\flatbuffers\\flatbuffer_builder.h",
+    "3rdparty\\flatbuffers\\include\\flatbuffers\\flatbuffers.h",
+    "3rdparty\\flatbuffers\\include\\flatbuffers\\stl_emulation.h",
+    "3rdparty\\flatbuffers\\include\\flatbuffers\\vector_downward.h",
+    "3rdparty\\flatbuffers\\include\\flatbuffers\\verifier.h",
+    "3rdparty\\include\\opencl\\1.2\\CL\\cl.h"
+  ]
+}

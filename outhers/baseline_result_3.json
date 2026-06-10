@@ -1,0 +1,32 @@
+{
+  "query": "Segurança de threads no gerenciamento de janelas cv::imshow e highgui",
+  "keywords": [
+    "imshow",
+    "highgui",
+    "window",
+    "thread",
+    "mutex",
+    "concurrency"
+  ],
+  "method": "baseline_grep",
+  "grep_time_sec": 6.499,
+  "inspection_time_sec": 0.146,
+  "total_time_sec": 6.645,
+  "files_matched": 1268,
+  "lines_inspected": 761104,
+  "total_lines": 2036570,
+  "ssr": 0.626281,
+  "found_relevant": true,
+  "file_list": [
+    "3rdparty\\cpufeatures\\cpu-features.c",
+    "3rdparty\\dlpack\\include\\dlpack\\dlpack.h",
+    "3rdparty\\include\\opencl\\1.2\\CL\\cl.hpp",
+    "3rdparty\\include\\opencl\\1.2\\CL\\cl_platform.h",
+    "3rdparty\\include\\vulkan\\vk_platform.h",
+    "3rdparty\\include\\vulkan\\vulkan.h",
+    "3rdparty\\include\\vulkan\\vulkan_android.h",
+    "3rdparty\\include\\vulkan\\vulkan_core.h",
+    "3rdparty\\include\\vulkan\\vulkan_screen.h",
+    "3rdparty\\include\\vulkan\\vulkan_vi.h"
+  ]
+}

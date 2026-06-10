@@ -1,0 +1,23 @@
+{
+  "query": "Desempenho do carregamento de bibliotecas em tempo de execução e da inicialização tardia em módulos OpenCV",
+  "method": "semantic_direct",
+  "total_time_sec": 0.046,
+  "embed_time_sec": 0.008,
+  "db_time_sec": 0.038,
+  "chunks_returned": 5,
+  "lines_returned": 112,
+  "total_lines": 2036570,
+  "ssr": 0.999945,
+  "found_relevant": false,
+  "results_preview": [
+    "modules/calib3d/test/test_cameracalibration.cpp",
+    "modules/videoio/src/cap_openni2.cpp",
+    "samples/dnn/yolo_detector.cpp"
+  ],
+  "scenario": {
+    "id": 5,
+    "nome": "Gargalos de Inicialização em Runtime",
+    "classe": "Performance de startup",
+    "query": "Desempenho do carregamento de bibliotecas em tempo de execução e da inicialização tardia em módulos OpenCV"
+  }
+}

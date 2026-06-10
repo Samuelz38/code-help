@@ -1,0 +1,37 @@
+{
+  "query": "Como cv::resize lida com o alinhamento de ponteiros SIMD e o incremento de memória",
+  "keywords": [
+    "cv::resize",
+    "Resize",
+    "resize",
+    "SIMD",
+    "sse",
+    "avx",
+    "neon"
+  ],
+  "method": "baseline_grep",
+  "total_time_sec": 10.478,
+  "files_matched": 2480,
+  "lines_inspected": 1623119,
+  "total_lines": 2036570,
+  "ssr": 0.203013,
+  "found_relevant": true,
+  "file_list": [
+    "3rdparty\\cpufeatures\\cpu-features.c",
+    "3rdparty\\cpufeatures\\cpu-features.h",
+    "3rdparty\\flatbuffers\\include\\flatbuffers\\allocator.h",
+    "3rdparty\\flatbuffers\\include\\flatbuffers\\array.h",
+    "3rdparty\\flatbuffers\\include\\flatbuffers\\base.h",
+    "3rdparty\\flatbuffers\\include\\flatbuffers\\buffer.h",
+    "3rdparty\\flatbuffers\\include\\flatbuffers\\default_allocator.h",
+    "3rdparty\\flatbuffers\\include\\flatbuffers\\flatbuffer_builder.h",
+    "3rdparty\\flatbuffers\\include\\flatbuffers\\flatbuffers.h",
+    "3rdparty\\flatbuffers\\include\\flatbuffers\\stl_emulation.h"
+  ],
+  "scenario": {
+    "id": 1,
+    "nome": "Manipulação de Ponteiros e SIMD (cv::resize)",
+    "classe": "Otimização de baixo nível",
+    "query": "Como cv::resize lida com o alinhamento de ponteiros SIMD e o incremento de memória"
+  }
+}

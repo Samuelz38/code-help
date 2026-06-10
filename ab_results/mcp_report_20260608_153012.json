@@ -1,0 +1,121 @@
+{
+  "timestamp": "2026-06-08T15:30:12.920771",
+  "method": "semantic_direct",
+  "scenarios": [
+    {
+      "query": "Como cv::resize lida com o alinhamento de ponteiros SIMD e o incremento de memória",
+      "method": "semantic_direct",
+      "total_time_sec": 0.434,
+      "embed_time_sec": 0.087,
+      "db_time_sec": 0.347,
+      "chunks_returned": 5,
+      "lines_returned": 96,
+      "total_lines": 2036570,
+      "ssr": 0.999953,
+      "found_relevant": false,
+      "results_preview": [
+        "modules/objdetect/include/opencv2/objdetect/detection_based_tracker.hpp",
+        "modules/objdetect/include/opencv2/objdetect.hpp",
+        "apps/traincascade/boost.cpp"
+      ],
+      "scenario": {
+        "id": 1,
+        "nome": "Manipulação de Ponteiros e SIMD (cv::resize)",
+        "classe": "Otimização de baixo nível",
+        "query": "Como cv::resize lida com o alinhamento de ponteiros SIMD e o incremento de memória"
+      }
+    },
+    {
+      "query": "cv::borderInterpolate tratamento de estouro de inteiro em bordas de convolução",
+      "method": "semantic_direct",
+      "total_time_sec": 0.06,
+      "embed_time_sec": 0.01,
+      "db_time_sec": 0.051,
+      "chunks_returned": 5,
+      "lines_returned": 101,
+      "total_lines": 2036570,
+      "ssr": 0.99995,
+      "found_relevant": false,
+      "results_preview": [
+        "apps/createsamples/utility.hpp",
+        "modules/ml/src/svmsgd.cpp",
+        "3rdparty/openexr/IlmImf/ImfChannelList.h"
+      ],
+      "scenario": {
+        "id": 2,
+        "nome": "Integer Overflow em Convoluções (cv::borderInterpolate)",
+        "classe": "Segurança aritmética",
+        "query": "cv::borderInterpolate tratamento de estouro de inteiro em bordas de convolução"
+      }
+    },
+    {
+      "query": "Segurança de threads no gerenciamento de janelas cv::imshow e highgui",
+      "method": "semantic_direct",
+      "total_time_sec": 0.114,
+      "embed_time_sec": 0.006,
+      "db_time_sec": 0.108,
+      "chunks_returned": 5,
+      "lines_returned": 30,
+      "total_lines": 2036570,
+      "ssr": 0.999985,
+      "found_relevant": false,
+      "results_preview": [
+        "modules/imgproc/src/morph.dispatch.cpp",
+        "modules/dnn/src/layers/region_layer.cpp",
+        "modules/ml/src/svmsgd.cpp"
+      ],
+      "scenario": {
+        "id": 3,
+        "nome": "Concorrência e Multithreading na GUI (highgui/cv::imshow)",
+        "classe": "Sincronização de threads",
+        "query": "Segurança de threads no gerenciamento de janelas cv::imshow e highgui"
+      }
+    },
+    {
+      "query": "Tratamento da vulnerabilidade de estouro de buffer do OpenJPEG na decodificação de imagens do OpenCV",
+      "method": "semantic_direct",
+      "total_time_sec": 0.303,
+      "embed_time_sec": 0.011,
+      "db_time_sec": 0.292,
+      "chunks_returned": 5,
+      "lines_returned": 133,
+      "total_lines": 2036570,
+      "ssr": 0.999935,
+      "found_relevant": false,
+      "results_preview": [
+        "modules/imgcodecs/include/opencv2/imgcodecs.hpp",
+        "modules/imgproc/test/test_intelligent_scissors.cpp",
+        "modules/imgcodecs/test/test_jpegxl.cpp"
+      ],
+      "scenario": {
+        "id": 4,
+        "nome": "Vulnerabilidades em Terceiros (OpenJPEG)",
+        "classe": "Segurança de dependências",
+        "query": "Tratamento da vulnerabilidade de estouro de buffer do OpenJPEG na decodificação de imagens do OpenCV"
+      }
+    },
+    {
+      "query": "Desempenho do carregamento de bibliotecas em tempo de execução e da inicialização tardia em módulos OpenCV",
+      "method": "semantic_direct",
+      "total_time_sec": 0.046,
+      "embed_time_sec": 0.008,
+      "db_time_sec": 0.038,
+      "chunks_returned": 5,
+      "lines_returned": 112,
+      "total_lines": 2036570,
+      "ssr": 0.999945,
+      "found_relevant": false,
+      "results_preview": [
+        "modules/calib3d/test/test_cameracalibration.cpp",
+        "modules/videoio/src/cap_openni2.cpp",
+        "samples/dnn/yolo_detector.cpp"
+      ],
+      "scenario": {
+        "id": 5,
+        "nome": "Gargalos de Inicialização em Runtime",
+        "classe": "Performance de startup",
+        "query": "Desempenho do carregamento de bibliotecas em tempo de execução e da inicialização tardia em módulos OpenCV"
+      }
+    }
+  ]
+}

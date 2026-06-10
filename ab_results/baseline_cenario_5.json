@@ -1,0 +1,36 @@
+{
+  "query": "Desempenho do carregamento de bibliotecas em tempo de execução e da inicialização tardia em módulos OpenCV",
+  "keywords": [
+    "init",
+    "load",
+    "lazy",
+    "startup",
+    "runtime",
+    "module"
+  ],
+  "method": "baseline_grep",
+  "total_time_sec": 6.127,
+  "files_matched": 2736,
+  "lines_inspected": 1637738,
+  "total_lines": 2036570,
+  "ssr": 0.195835,
+  "found_relevant": true,
+  "file_list": [
+    "3rdparty\\cpufeatures\\cpu-features.c",
+    "3rdparty\\dlpack\\include\\dlpack\\dlpack.h",
+    "3rdparty\\flatbuffers\\include\\flatbuffers\\base.h",
+    "3rdparty\\flatbuffers\\include\\flatbuffers\\buffer.h",
+    "3rdparty\\flatbuffers\\include\\flatbuffers\\flatbuffer_builder.h",
+    "3rdparty\\flatbuffers\\include\\flatbuffers\\flatbuffers.h",
+    "3rdparty\\flatbuffers\\include\\flatbuffers\\stl_emulation.h",
+    "3rdparty\\flatbuffers\\include\\flatbuffers\\vector_downward.h",
+    "3rdparty\\flatbuffers\\include\\flatbuffers\\verifier.h",
+    "3rdparty\\include\\opencl\\1.2\\CL\\cl.h"
+  ],
+  "scenario": {
+    "id": 5,
+    "nome": "Gargalos de Inicialização em Runtime",
+    "classe": "Performance de startup",
+    "query": "Desempenho do carregamento de bibliotecas em tempo de execução e da inicialização tardia em módulos OpenCV"
+  }
+}

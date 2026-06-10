@@ -1,0 +1,23 @@
+{
+  "query": "Tratamento da vulnerabilidade de estouro de buffer do OpenJPEG na decodificação de imagens do OpenCV",
+  "method": "semantic_direct",
+  "total_time_sec": 0.303,
+  "embed_time_sec": 0.011,
+  "db_time_sec": 0.292,
+  "chunks_returned": 5,
+  "lines_returned": 133,
+  "total_lines": 2036570,
+  "ssr": 0.999935,
+  "found_relevant": false,
+  "results_preview": [
+    "modules/imgcodecs/include/opencv2/imgcodecs.hpp",
+    "modules/imgproc/test/test_intelligent_scissors.cpp",
+    "modules/imgcodecs/test/test_jpegxl.cpp"
+  ],
+  "scenario": {
+    "id": 4,
+    "nome": "Vulnerabilidades em Terceiros (OpenJPEG)",
+    "classe": "Segurança de dependências",
+    "query": "Tratamento da vulnerabilidade de estouro de buffer do OpenJPEG na decodificação de imagens do OpenCV"
+  }
+}

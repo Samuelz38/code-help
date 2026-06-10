@@ -44,7 +44,7 @@ logger = logging.getLogger("reprocessor")
 class Reprocessor:
     """
     Orquestrador do pipeline de reprocessamento automático.
-    Agora com coleta de métricas de performance integrada.
+    VERSÃO BATCH: processa embeddings em lotes para máxima performance.
     """
 
     def __init__(self, repo_path: str, project_name: str, commit_hash: str = None,
@@ -71,6 +71,15 @@ class Reprocessor:
 
         # Cache do total de linhas do repositório (para SSR)
         self._total_lines = None
+
+        # ============================================================
+        # INSTÂNCIA ÚNICA DO ETL (singleton de embeddings)
+        # ============================================================
+        self.etl_process = EmbeddingsETLProcess(str(self.repo_path))
+        # Pré-carrega o modelo de embeddings uma única vez
+        logger.info("⚡ Pré-carregando modelo de embeddings...")
+        self.embedding_model = self.etl_process.generate_embedding()
+        logger.info("✅ Modelo de embeddings carregado com sucesso!")
 
         if not self.repo_path.exists():
             raise ValueError(f"Repositório não encontrado: {repo_path}")
@@ -180,8 +189,8 @@ class Reprocessor:
                 values.append(log_id)
                 cursor.execute(query, values)
                 conn.commit()
-            cursor.close()
-            conn.close()
+                cursor.close()
+                conn.close()
         except Exception as e:
             logger.error(f"Erro ao atualizar log ETL: {e}")
             raise
@@ -207,54 +216,105 @@ class Reprocessor:
             logger.error(f"Erro ao deletar chunks antigos: {e}")
             raise
 
-    def _insert_chunks(self, chunks: List[Dict]) -> int:
+    def _insert_chunks_batch(self, chunks: List[Dict]) -> int:
+        """
+        VERSÃO BATCH: processa todos os embeddings de uma vez em lotes.
+        Reduz de milhares de chamadas para dezenas de batches.
+        """
         if not chunks:
             return 0
-        try:
-            embeddings = EmbeddingsETLProcess('.')
-            vector_model = embeddings.generate_embedding()
-            if isinstance(vector_model, str):
-                raise RuntimeError(f"Falha ao carregar modelo: {vector_model}")
 
+        BATCH_SIZE = 64  # Processa 64 chunks por vez — ótimo para CPU
+        total_inserted = 0
+
+        try:
             conn = self._get_db_connection()
             cursor = conn.cursor()
-            data = []
-            for chunk in chunks:
-                embedding = vector_model.embed_query(chunk['content'])
-                data.append((
-                    chunk['content'],
-                    embedding,
-                    json.dumps(chunk['metadata']),
-                    chunk['file_path'],
-                    chunk['chunk_index'],
-                    self.commit_hash
-                ))
-            execute_values(cursor, """
-                INSERT INTO code_vectors (content, embedding, metadata, file_path, chunk_index, commit_hash)
-                VALUES %s
-            """, data, template="(%s, %s::vector, %s, %s, %s, %s)")
-            inserted = cursor.rowcount
+
+            # Processa em batches
+            for batch_start in range(0, len(chunks), BATCH_SIZE):
+                batch_end = min(batch_start + BATCH_SIZE, len(chunks))
+                batch = chunks[batch_start:batch_end]
+
+                # Gera embeddings em batch (MUITO mais rápido!)
+                contents = [c['content'] for c in batch]
+                embeddings = self.embedding_model.embed_documents(contents)
+
+                # Prepara dados para inserção
+                data = []
+                for chunk, embedding in zip(batch, embeddings):
+                    data.append((
+                        chunk['content'],
+                        embedding,
+                        json.dumps(chunk['metadata']),
+                        chunk['file_path'],
+                        chunk['chunk_index'],
+                        self.commit_hash
+                    ))
+
+                # Insere no banco
+                execute_values(cursor, """
+                    INSERT INTO code_vectors (content, embedding, metadata, file_path, chunk_index, commit_hash)
+                    VALUES %s
+                """, data, template="(%s, %s::vector, %s, %s, %s, %s)")
+
+                batch_inserted = cursor.rowcount
+                total_inserted += batch_inserted
+
+                # Log de progresso a cada batch
+                if (batch_start // BATCH_SIZE) % 10 == 0:
+                    progress = (batch_end / len(chunks)) * 100
+                    logger.info(f"📊 Progresso: {progress:.1f}% ({batch_end}/{len(chunks)} chunks)")
+
             conn.commit()
             cursor.close()
             conn.close()
-            return inserted
+            return total_inserted
+
         except Exception as e:
-            logger.error(f"Erro ao inserir chunks: {e}")
+            logger.error(f"Erro ao inserir chunks em batch: {e}")
             raise
 
-    def _process_files(self, file_paths: List[str]) -> Tuple[int, int]:
+    def _load_single_file(self, filepath: Path) -> List:
+        """Carrega APENAS o arquivo individual."""
         from langchain_core.documents import Document
+        try:
+            with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
+                content = f.read()
+
+            doc = Document(
+                page_content=content,
+                metadata={'source': str(filepath)}
+            )
+            return [doc]
+        except Exception as e:
+            logger.warning(f"⚠️ Não foi possível ler {filepath}: {e}")
+            return []
+
+    def _process_files(self, file_paths: List[str]) -> Tuple[int, int]:
+        """
+        Processa arquivos em chunks e insere no banco.
+        VERSÃO BATCH: acumula TODOS os chunks antes de gerar embeddings.
+        """
         all_chunks = []
-        for filepath in file_paths:
+
+        # FASE 1: Chunking (rápido, sem embeddings)
+        logger.info("📝 Fase 1: Chunking dos arquivos...")
+        for idx, filepath in enumerate(file_paths, 1):
             path = Path(filepath)
             rel_path = str(path.relative_to(self.repo_path))
             file_hash = self._file_hash(path)
+
+            if idx % 500 == 0:
+                logger.info(f"   Chunking: {idx}/{len(file_paths)} arquivos ({idx/len(file_paths)*100:.1f}%)")
+
             try:
-                docs = EmbeddingsETLProcess(str(path.parent)).load_data_path()
-                file_docs = [d for d in docs if d.metadata.get('source', '') == str(path)]
+                file_docs = self._load_single_file(path)
                 if not file_docs:
                     continue
-                chunks = EmbeddingsETLProcess(str(path.parent)).chunk_documents(file_docs)
+
+                chunks = self.etl_process.chunk_documents(file_docs)
+
                 for i, chunk in enumerate(chunks):
                     chunk.metadata.update({
                         'project': self.project_name,
@@ -272,9 +332,15 @@ class Reprocessor:
                         'chunk_index': i
                     })
             except Exception as e:
-                logger.error(f"Erro ao processar {rel_path}: {e}")
+                logger.error(f"❌ Erro ao processar {rel_path}: {e}")
                 raise
-        inserted = self._insert_chunks(all_chunks)
+
+        logger.info(f"✅ Fase 1 concluída: {len(all_chunks)} chunks gerados de {len(file_paths)} arquivos")
+
+        # FASE 2: Embeddings em batch (a parte lenta, mas otimizada)
+        logger.info("🧠 Fase 2: Gerando embeddings em batch...")
+        inserted = self._insert_chunks_batch(all_chunks)
+
         return len(all_chunks), inserted
 
     def _register_version(self, total_chunks: int):
@@ -295,20 +361,19 @@ class Reprocessor:
             raise
 
     # ============================================================
-    # MÉTODO PRINCIPAL: run() 
+    # MÉTODO PRINCIPAL: run()
     # ============================================================
     def run(self):
         logger.info(f"{'='*60}")
-        logger.info(f"🚀 PIPELINE DE REPROCESSAMENTO AUTOMÁTICO")
+        logger.info(f"🚀 PIPELINE BATCH — REPROCESSAMENTO OTIMIZADO")
         logger.info(f"{'='*60}")
         logger.info(f"📁 Repositório: {self.repo_path}")
-        logger.info(f"🏷️ Projeto: {self.project_name}")
-        logger.info(f"🔖 Commit: {self.commit_hash[:8]}")
-        logger.info(f"💬 Mensagem: {self.commit_msg}")
-        logger.info(f"⏰ Início: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        logger.info(f"🏷️  Projeto:    {self.project_name}")
+        logger.info(f"🔖 Commit:      {self.commit_hash[:8]}")
+        logger.info(f"💬 Mensagem:    {self.commit_msg}")
+        logger.info(f"⏰ Início:      {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         logger.info(f"{'='*60}")
 
-        # Inicia timer global do pipeline
         pipeline_start = time.perf_counter()
         log_id = self._create_etl_log()
 
@@ -325,7 +390,6 @@ class Reprocessor:
                     files_processed=0,
                     chunks_inserted=0
                 )
-                # Registra métrica mesmo sem processamento
                 self.metrics.record("T_ingest", 0.0, "segundos", {
                     "project_name": self.project_name,
                     "commit_hash": self.commit_hash,
@@ -333,18 +397,18 @@ class Reprocessor:
                 })
                 return
 
-            logger.info(f"📄 {len(changed_files)} arquivo(s) modificado(s)")
+            logger.info(f"📄 {len(changed_files)} arquivo(s) para processar")
 
-            # 2. Remove chunks antigos (com timer)
+            # 2. Remove chunks antigos
             with self.metrics.timer("T_delete", metadata={
                 "project_name": self.project_name,
                 "commit_hash": self.commit_hash,
                 "phase": "delete_old"
             }):
                 deleted = self._delete_old_chunks(changed_files)
-            logger.info(f"🗑️ Chunks removidos: {deleted}")
+                logger.info(f"🗑️  Chunks removidos: {deleted}")
 
-            # 3. Reprocessa arquivos (com timer + memory tracker)
+            # 3. Reprocessa em duas fases (chunking + batch embeddings)
             with self.metrics.memory_tracker("M_peak", metadata={
                 "project_name": self.project_name,
                 "commit_hash": self.commit_hash,
@@ -357,19 +421,17 @@ class Reprocessor:
                 }):
                     chunks_generated, chunks_inserted = self._process_files(changed_files)
 
-            logger.info(f"⚙️ Chunks gerados: {chunks_generated} | Inseridos: {chunks_inserted}")
+            logger.info(f"⚙️  Chunks gerados: {chunks_generated} | Inseridos: {chunks_inserted}")
 
             # 4. Registra versão
             self._register_version(chunks_inserted)
 
-            # 5. Calcula throughput
+            # 5. Métricas finais
             elapsed_total = time.perf_counter() - pipeline_start
             self.metrics.calculate_throughput(
                 chunks_inserted, elapsed_total,
                 self.project_name, phase="full_pipeline"
             )
-
-            # 6. Registra tempo total de ingestão
             self.metrics.record("T_ingest", elapsed_total, "segundos", {
                 "project_name": self.project_name,
                 "commit_hash": self.commit_hash,
@@ -378,7 +440,7 @@ class Reprocessor:
                 "chunks_deleted": deleted
             })
 
-            # 7. Finaliza log
+            # 6. Finaliza log
             self._update_etl_log(
                 log_id,
                 status="completed",
@@ -388,26 +450,24 @@ class Reprocessor:
                 chunks_deleted=deleted
             )
 
-         
             summary = self.metrics.get_summary()
             logger.info(f"{'='*60}")
             logger.info(f"✅ REPROCESSAMENTO CONCLUÍDO")
-            logger.info(f"{'='*60}")
             logger.info(f"⏰ Término: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-            logger.info(f"📊 Métricas do pipeline:")
+            logger.info(f"⏱️  Tempo total: {elapsed_total:.1f}s")
+            logger.info(f"📊 Métricas:")
             for mtype, stats in summary.items():
-                logger.info(f"   • {mtype}: {stats['mean']} {stats['unit']} (média de {stats['count']} medições)")
+                logger.info(f"   • {mtype}: {stats['mean']} {stats['unit']}")
             logger.info(f"{'='*60}")
 
         except Exception as e:
-            logger.error(f"❌ ERRO NO REPROCESSAMENTO: {e}", exc_info=True)
+            logger.error(f"❌ ERRO: {e}", exc_info=True)
             self._update_etl_log(
                 log_id,
                 status="failed",
                 finished_at=datetime.now(),
                 error_message=str(e)
             )
-      
             self.metrics.record("T_ingest", -1, "segundos", {
                 "project_name": self.project_name,
                 "commit_hash": self.commit_hash,
@@ -419,7 +479,7 @@ class Reprocessor:
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Pipeline de reprocessamento automático de embeddings com métricas"
+        description="Pipeline BATCH de reprocessamento de embeddings"
     )
     parser.add_argument("--repo-path", required=True, help="Caminho do repositório git")
     parser.add_argument("--project-name", required=True, help="Nome do projeto")

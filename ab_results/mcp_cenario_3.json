@@ -1,0 +1,23 @@
+{
+  "query": "Segurança de threads no gerenciamento de janelas cv::imshow e highgui",
+  "method": "semantic_direct",
+  "total_time_sec": 0.114,
+  "embed_time_sec": 0.006,
+  "db_time_sec": 0.108,
+  "chunks_returned": 5,
+  "lines_returned": 30,
+  "total_lines": 2036570,
+  "ssr": 0.999985,
+  "found_relevant": false,
+  "results_preview": [
+    "modules/imgproc/src/morph.dispatch.cpp",
+    "modules/dnn/src/layers/region_layer.cpp",
+    "modules/ml/src/svmsgd.cpp"
+  ],
+  "scenario": {
+    "id": 3,
+    "nome": "Concorrência e Multithreading na GUI (highgui/cv::imshow)",
+    "classe": "Sincronização de threads",
+    "query": "Segurança de threads no gerenciamento de janelas cv::imshow e highgui"
+  }
+}

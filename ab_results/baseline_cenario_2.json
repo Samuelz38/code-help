@@ -1,0 +1,35 @@
+{
+  "query": "cv::borderInterpolate tratamento de estouro de inteiro em bordas de convolução",
+  "keywords": [
+    "borderInterpolate",
+    "border",
+    "interpolate",
+    "overflow",
+    "saturate"
+  ],
+  "method": "baseline_grep",
+  "total_time_sec": 9.453,
+  "files_matched": 717,
+  "lines_inspected": 736744,
+  "total_lines": 2036570,
+  "ssr": 0.638243,
+  "found_relevant": true,
+  "file_list": [
+    "3rdparty\\cpufeatures\\cpu-features.c",
+    "3rdparty\\flatbuffers\\include\\flatbuffers\\base.h",
+    "3rdparty\\flatbuffers\\include\\flatbuffers\\flatbuffer_builder.h",
+    "3rdparty\\flatbuffers\\include\\flatbuffers\\verifier.h",
+    "3rdparty\\include\\vulkan\\vulkan_core.h",
+    "3rdparty\\libjasper\\jasper\\jas_config.h",
+    "3rdparty\\libjasper\\jasper\\jas_fix.h",
+    "3rdparty\\libjpeg\\jcarith.c",
+    "3rdparty\\libjpeg\\jchuff.c",
+    "3rdparty\\libjpeg\\jcinit.c"
+  ],
+  "scenario": {
+    "id": 2,
+    "nome": "Integer Overflow em Convoluções (cv::borderInterpolate)",
+    "classe": "Segurança aritmética",
+    "query": "cv::borderInterpolate tratamento de estouro de inteiro em bordas de convolução"
+  }
+}

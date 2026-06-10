@@ -1,0 +1,36 @@
+{
+  "query": "Tratamento da vulnerabilidade de estouro de buffer do OpenJPEG na decodificação de imagens do OpenCV",
+  "keywords": [
+    "OpenJPEG",
+    "jpeg",
+    "jpg",
+    "decoder",
+    "buffer",
+    "vulnerability"
+  ],
+  "method": "baseline_grep",
+  "total_time_sec": 6.531,
+  "files_matched": 1439,
+  "lines_inspected": 1086214,
+  "total_lines": 2036570,
+  "ssr": 0.466645,
+  "found_relevant": true,
+  "file_list": [
+    "3rdparty\\cpufeatures\\cpu-features.c",
+    "3rdparty\\dlpack\\include\\dlpack\\dlpack.h",
+    "3rdparty\\flatbuffers\\include\\flatbuffers\\allocator.h",
+    "3rdparty\\flatbuffers\\include\\flatbuffers\\array.h",
+    "3rdparty\\flatbuffers\\include\\flatbuffers\\base.h",
+    "3rdparty\\flatbuffers\\include\\flatbuffers\\buffer.h",
+    "3rdparty\\flatbuffers\\include\\flatbuffers\\buffer_ref.h",
+    "3rdparty\\flatbuffers\\include\\flatbuffers\\default_allocator.h",
+    "3rdparty\\flatbuffers\\include\\flatbuffers\\detached_buffer.h",
+    "3rdparty\\flatbuffers\\include\\flatbuffers\\flatbuffer_builder.h"
+  ],
+  "scenario": {
+    "id": 4,
+    "nome": "Vulnerabilidades em Terceiros (OpenJPEG)",
+    "classe": "Segurança de dependências",
+    "query": "Tratamento da vulnerabilidade de estouro de buffer do OpenJPEG na decodificação de imagens do OpenCV"
+  }
+}

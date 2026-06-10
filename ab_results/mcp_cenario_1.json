@@ -1,0 +1,23 @@
+{
+  "query": "Como cv::resize lida com o alinhamento de ponteiros SIMD e o incremento de memória",
+  "method": "semantic_direct",
+  "total_time_sec": 0.434,
+  "embed_time_sec": 0.087,
+  "db_time_sec": 0.347,
+  "chunks_returned": 5,
+  "lines_returned": 96,
+  "total_lines": 2036570,
+  "ssr": 0.999953,
+  "found_relevant": false,
+  "results_preview": [
+    "modules/objdetect/include/opencv2/objdetect/detection_based_tracker.hpp",
+    "modules/objdetect/include/opencv2/objdetect.hpp",
+    "apps/traincascade/boost.cpp"
+  ],
+  "scenario": {
+    "id": 1,
+    "nome": "Manipulação de Ponteiros e SIMD (cv::resize)",
+    "classe": "Otimização de baixo nível",
+    "query": "Como cv::resize lida com o alinhamento de ponteiros SIMD e o incremento de memória"
+  }
+}

@@ -1,0 +1,186 @@
+{
+  "timestamp": "2026-06-08T15:18:03.843134",
+  "method": "baseline_grep",
+  "scenarios": [
+    {
+      "query": "Como cv::resize lida com o alinhamento de ponteiros SIMD e o incremento de memória",
+      "keywords": [
+        "cv::resize",
+        "Resize",
+        "resize",
+        "SIMD",
+        "sse",
+        "avx",
+        "neon"
+      ],
+      "method": "baseline_grep",
+      "total_time_sec": 10.478,
+      "files_matched": 2480,
+      "lines_inspected": 1623119,
+      "total_lines": 2036570,
+      "ssr": 0.203013,
+      "found_relevant": true,
+      "file_list": [
+        "3rdparty\\cpufeatures\\cpu-features.c",
+        "3rdparty\\cpufeatures\\cpu-features.h",
+        "3rdparty\\flatbuffers\\include\\flatbuffers\\allocator.h",
+        "3rdparty\\flatbuffers\\include\\flatbuffers\\array.h",
+        "3rdparty\\flatbuffers\\include\\flatbuffers\\base.h",
+        "3rdparty\\flatbuffers\\include\\flatbuffers\\buffer.h",
+        "3rdparty\\flatbuffers\\include\\flatbuffers\\default_allocator.h",
+        "3rdparty\\flatbuffers\\include\\flatbuffers\\flatbuffer_builder.h",
+        "3rdparty\\flatbuffers\\include\\flatbuffers\\flatbuffers.h",
+        "3rdparty\\flatbuffers\\include\\flatbuffers\\stl_emulation.h"
+      ],
+      "scenario": {
+        "id": 1,
+        "nome": "Manipulação de Ponteiros e SIMD (cv::resize)",
+        "classe": "Otimização de baixo nível",
+        "query": "Como cv::resize lida com o alinhamento de ponteiros SIMD e o incremento de memória"
+      }
+    },
+    {
+      "query": "cv::borderInterpolate tratamento de estouro de inteiro em bordas de convolução",
+      "keywords": [
+        "borderInterpolate",
+        "border",
+        "interpolate",
+        "overflow",
+        "saturate"
+      ],
+      "method": "baseline_grep",
+      "total_time_sec": 9.453,
+      "files_matched": 717,
+      "lines_inspected": 736744,
+      "total_lines": 2036570,
+      "ssr": 0.638243,
+      "found_relevant": true,
+      "file_list": [
+        "3rdparty\\cpufeatures\\cpu-features.c",
+        "3rdparty\\flatbuffers\\include\\flatbuffers\\base.h",
+        "3rdparty\\flatbuffers\\include\\flatbuffers\\flatbuffer_builder.h",
+        "3rdparty\\flatbuffers\\include\\flatbuffers\\verifier.h",
+        "3rdparty\\include\\vulkan\\vulkan_core.h",
+        "3rdparty\\libjasper\\jasper\\jas_config.h",
+        "3rdparty\\libjasper\\jasper\\jas_fix.h",
+        "3rdparty\\libjpeg\\jcarith.c",
+        "3rdparty\\libjpeg\\jchuff.c",
+        "3rdparty\\libjpeg\\jcinit.c"
+      ],
+      "scenario": {
+        "id": 2,
+        "nome": "Integer Overflow em Convoluções (cv::borderInterpolate)",
+        "classe": "Segurança aritmética",
+        "query": "cv::borderInterpolate tratamento de estouro de inteiro em bordas de convolução"
+      }
+    },
+    {
+      "query": "Segurança de threads no gerenciamento de janelas cv::imshow e highgui",
+      "keywords": [
+        "imshow",
+        "highgui",
+        "window",
+        "thread",
+        "mutex",
+        "concurrency"
+      ],
+      "method": "baseline_grep",
+      "total_time_sec": 7.095,
+      "files_matched": 1242,
+      "lines_inspected": 755554,
+      "total_lines": 2036570,
+      "ssr": 0.629007,
+      "found_relevant": true,
+      "file_list": [
+        "3rdparty\\cpufeatures\\cpu-features.c",
+        "3rdparty\\dlpack\\include\\dlpack\\dlpack.h",
+        "3rdparty\\include\\opencl\\1.2\\CL\\cl.hpp",
+        "3rdparty\\include\\opencl\\1.2\\CL\\cl_platform.h",
+        "3rdparty\\include\\vulkan\\vk_platform.h",
+        "3rdparty\\include\\vulkan\\vulkan.h",
+        "3rdparty\\include\\vulkan\\vulkan_android.h",
+        "3rdparty\\include\\vulkan\\vulkan_core.h",
+        "3rdparty\\include\\vulkan\\vulkan_screen.h",
+        "3rdparty\\include\\vulkan\\vulkan_vi.h"
+      ],
+      "scenario": {
+        "id": 3,
+        "nome": "Concorrência e Multithreading na GUI (highgui/cv::imshow)",
+        "classe": "Sincronização de threads",
+        "query": "Segurança de threads no gerenciamento de janelas cv::imshow e highgui"
+      }
+    },
+    {
+      "query": "Tratamento da vulnerabilidade de estouro de buffer do OpenJPEG na decodificação de imagens do OpenCV",
+      "keywords": [
+        "OpenJPEG",
+        "jpeg",
+        "jpg",
+        "decoder",
+        "buffer",
+        "vulnerability"
+      ],
+      "method": "baseline_grep",
+      "total_time_sec": 6.531,
+      "files_matched": 1439,
+      "lines_inspected": 1086214,
+      "total_lines": 2036570,
+      "ssr": 0.466645,
+      "found_relevant": true,
+      "file_list": [
+        "3rdparty\\cpufeatures\\cpu-features.c",
+        "3rdparty\\dlpack\\include\\dlpack\\dlpack.h",
+        "3rdparty\\flatbuffers\\include\\flatbuffers\\allocator.h",
+        "3rdparty\\flatbuffers\\include\\flatbuffers\\array.h",
+        "3rdparty\\flatbuffers\\include\\flatbuffers\\base.h",
+        "3rdparty\\flatbuffers\\include\\flatbuffers\\buffer.h",
+        "3rdparty\\flatbuffers\\include\\flatbuffers\\buffer_ref.h",
+        "3rdparty\\flatbuffers\\include\\flatbuffers\\default_allocator.h",
+        "3rdparty\\flatbuffers\\include\\flatbuffers\\detached_buffer.h",
+        "3rdparty\\flatbuffers\\include\\flatbuffers\\flatbuffer_builder.h"
+      ],
+      "scenario": {
+        "id": 4,
+        "nome": "Vulnerabilidades em Terceiros (OpenJPEG)",
+        "classe": "Segurança de dependências",
+        "query": "Tratamento da vulnerabilidade de estouro de buffer do OpenJPEG na decodificação de imagens do OpenCV"
+      }
+    },
+    {
+      "query": "Desempenho do carregamento de bibliotecas em tempo de execução e da inicialização tardia em módulos OpenCV",
+      "keywords": [
+        "init",
+        "load",
+        "lazy",
+        "startup",
+        "runtime",
+        "module"
+      ],
+      "method": "baseline_grep",
+      "total_time_sec": 6.127,
+      "files_matched": 2736,
+      "lines_inspected": 1637738,
+      "total_lines": 2036570,
+      "ssr": 0.195835,
+      "found_relevant": true,
+      "file_list": [
+        "3rdparty\\cpufeatures\\cpu-features.c",
+        "3rdparty\\dlpack\\include\\dlpack\\dlpack.h",
+        "3rdparty\\flatbuffers\\include\\flatbuffers\\base.h",
+        "3rdparty\\flatbuffers\\include\\flatbuffers\\buffer.h",
+        "3rdparty\\flatbuffers\\include\\flatbuffers\\flatbuffer_builder.h",
+        "3rdparty\\flatbuffers\\include\\flatbuffers\\flatbuffers.h",
+        "3rdparty\\flatbuffers\\include\\flatbuffers\\stl_emulation.h",
+        "3rdparty\\flatbuffers\\include\\flatbuffers\\vector_downward.h",
+        "3rdparty\\flatbuffers\\include\\flatbuffers\\verifier.h",
+        "3rdparty\\include\\opencl\\1.2\\CL\\cl.h"
+      ],
+      "scenario": {
+        "id": 5,
+        "nome": "Gargalos de Inicialização em Runtime",
+        "classe": "Performance de startup",
+        "query": "Desempenho do carregamento de bibliotecas em tempo de execução e da inicialização tardia em módulos OpenCV"
+      }
+    }
+  ]
+}

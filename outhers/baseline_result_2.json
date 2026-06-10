@@ -1,0 +1,31 @@
+{
+  "query": "cv::borderInterpolate tratamento de estouro de inteiro em bordas de convolução",
+  "keywords": [
+    "borderInterpolate",
+    "border",
+    "interpolate",
+    "overflow",
+    "saturate"
+  ],
+  "method": "baseline_grep",
+  "grep_time_sec": 5.578,
+  "inspection_time_sec": 0.131,
+  "total_time_sec": 5.709,
+  "files_matched": 729,
+  "lines_inspected": 739087,
+  "total_lines": 2036570,
+  "ssr": 0.637092,
+  "found_relevant": true,
+  "file_list": [
+    "3rdparty\\cpufeatures\\cpu-features.c",
+    "3rdparty\\flatbuffers\\include\\flatbuffers\\base.h",
+    "3rdparty\\flatbuffers\\include\\flatbuffers\\flatbuffer_builder.h",
+    "3rdparty\\flatbuffers\\include\\flatbuffers\\verifier.h",
+    "3rdparty\\include\\vulkan\\vulkan_core.h",
+    "3rdparty\\libjasper\\jasper\\jas_config.h",
+    "3rdparty\\libjasper\\jasper\\jas_fix.h",
+    "3rdparty\\libjpeg\\jcarith.c",
+    "3rdparty\\libjpeg\\jchuff.c",
+    "3rdparty\\libjpeg\\jcinit.c"
+  ]
+}

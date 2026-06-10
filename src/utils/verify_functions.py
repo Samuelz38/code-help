@@ -11,15 +11,12 @@ def verify_is_provider_not_exist(provider: str) -> bool:
 
 
 def verify_is_model_not_exist(model: str) -> bool:
-    models = [
+    allowed_models = {
         'text-embedding-3-small',
-        'sentence-transformers/all-MiniLM-L6-v2',
-    ]
+        'sentence-transformers/all-minilm-l6-v2',
+    }
     model = model.strip().lower()
-    if model in models:
-        return False
-    else:
-        return True
+    return model not in allowed_models
 
 
 async def check_service(host: str, port: str, timeout: float = 2.0) -> bool:

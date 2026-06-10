@@ -1,0 +1,33 @@
+{
+  "query": "Como cv::resize lida com o alinhamento de ponteiros SIMD",
+  "keywords": [
+    "cv::resize",
+    "Resize",
+    "resize",
+    "SIMD",
+    "sse",
+    "avx",
+    "neon"
+  ],
+  "method": "baseline_grep",
+  "grep_time_sec": 6.918,
+  "inspection_time_sec": 0.29,
+  "total_time_sec": 7.208,
+  "files_matched": 2500,
+  "lines_inspected": 1627969,
+  "total_lines": 2036570,
+  "ssr": 0.200632,
+  "found_relevant": true,
+  "file_list": [
+    "3rdparty\\cpufeatures\\cpu-features.c",
+    "3rdparty\\cpufeatures\\cpu-features.h",
+    "3rdparty\\flatbuffers\\include\\flatbuffers\\allocator.h",
+    "3rdparty\\flatbuffers\\include\\flatbuffers\\array.h",
+    "3rdparty\\flatbuffers\\include\\flatbuffers\\base.h",
+    "3rdparty\\flatbuffers\\include\\flatbuffers\\buffer.h",
+    "3rdparty\\flatbuffers\\include\\flatbuffers\\default_allocator.h",
+    "3rdparty\\flatbuffers\\include\\flatbuffers\\flatbuffer_builder.h",
+    "3rdparty\\flatbuffers\\include\\flatbuffers\\flatbuffers.h",
+    "3rdparty\\flatbuffers\\include\\flatbuffers\\stl_emulation.h"
+  ]
+}

@@ -14,6 +14,7 @@ RUN pip install --no-cache-dir -r /app/requirements.docker.txt
 COPY src /app/src
 COPY .env /app/.env
 COPY ./reprocess.py /app/reprocess.py
+COPY ./metrics_collector.py /app/metrics_collector.py
 COPY ./mcp_server.py /app/mcp_server.py
 COPY ./mcp_server_filesystem.py /app/mcp_server_filesystem.py
 COPY ./configs.json /app/configs.json

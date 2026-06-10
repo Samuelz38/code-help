@@ -9,22 +9,19 @@ RUN apt-get update && apt-get install -y \
     gcc \
     && rm -rf /var/lib/apt/lists/*
 
-# Copia requirements para container Linux
-COPY requirements.docker.txt /app/requirements.docker.txt
-RUN pip install --no-cache-dir -r /app/requirements.docker.txt
+# Copia requirements e instala dependências Python
+COPY requirements.docker.txt .
+RUN pip install --no-cache-dir -r requirements.docker.txt
 
-# Copia código do projeto
-COPY src /app/src
-COPY .env /app/.env
-COPY ./reprocess.py /app/reprocess.py
-COPY ./mcp_server.py /app/mcp_server.py
-COPY ./mcp_server_filesystem.py /app/mcp_server_filesystem.py
-COPY ./configs.json /app/configs.json
+# Pré-baixa o modelo de embeddings durante o build
+# Isso evita download em runtime e garante que o modelo esteja no container
+RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')"
 
-# Cria diretório de logs
-RUN mkdir -p /app/logs
+# Copia o código da aplicação
+COPY . .
 
+# Variáveis de ambiente padrão
 ENV PYTHONUNBUFFERED=1
-ENV PYTHONPATH=/app
+ENV HF_HUB_CACHE=/app/.cache/huggingface
 
-CMD ["python", "/app/reprocess.py"]
+CMD ["python", "reprocess.py"]
